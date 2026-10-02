@@ -1,3 +1,5 @@
+DROP  FUNCTION booking.fn_get_court_status
+
 CREATE OR REPLACE FUNCTION booking.fn_get_court_status
 (
     p_branch_id UUID,
@@ -16,6 +18,7 @@ RETURNS TABLE
     booking_id UUID,
     start_time TIME,
     end_time TIME,
+    booking_date DATE,
     booking_type VARCHAR,
     booking_status VARCHAR,
     payment_status VARCHAR,
@@ -41,6 +44,7 @@ SELECT
     bk.id,
     bd.start_time,
     bd.end_time,
+    bd.booking_date,
     bk.booking_type,
     bk.status,
     COALESCE(pay.status,'UNPAID'),
@@ -67,8 +71,8 @@ SELECT
 
 FROM core.branches b INNER JOIN core.operating_hours oh ON oh.branch_id = b.id
 INNER JOIN core.courts c ON c.branch_id = b.id
-INNER JOIN booking.booking_details bd on bd.court_id = c.id AND bd.booking_date = p_date
-INNER JOIN booking.bookings bk ON bk.id  = bd.booking_id  AND  bk.deleted_at IS NULL
+LEFT JOIN booking.booking_details bd on bd.court_id = c.id AND bd.booking_date = p_date
+LEFT JOIN booking.bookings bk ON bk.id  = bd.booking_id  AND  bk.deleted_at IS NULL
 LEFT JOIN customer.customers cust ON cust.id = bk.customer_id
 LEFT JOIN
 (
