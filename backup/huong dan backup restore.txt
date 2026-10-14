@@ -1,0 +1,40 @@
+
+Court_Booking_Management
+
+u : admin
+Password=nnphan2126"
+
+Bước 1: Tạo file backup
+
+docker exec -t ten_container_postgres_cua_ban pg_dump -U ten_user_database ten_database > duong_dan_luu_file/backup.sql
+
+docker exec -t postgres-db pg_dump -U admin -d Court_Booking_Management -F c -f /tmp/CourtBookingManagement.backup
+
+
+Bước 2: Copy file backup từ Container ra Host
+docker cp postgres-db:/tmp/CourtBookingManagement.backup ./CourtBookingManagement.backup
+
+
+Bước 3: Tạo PostgreSQL Container trên máy mới (nếu đang có rồi thì khỏi tạo)
+
+docker run -d --name postgres-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:17
+
+Bước 4: Copy backup vào container mới
+Copy file backup từ máy host vào bên trong Docker container:
+
+docker cp /duong/dan/tren/may/file_backup.backup ten_container_postgres_cua_ban:/tmp/file_backup.backup
+
+docker cp CourtBookingManagement.backup postgres-db:/tmp/
+
+
+
+
+Bước 5: Tạo database mới trong postgres (xóa database cũ)
+CREATE DATABASE CourtBookingManagement;
+
+Bước 6: Restore
+Chạy lệnh pg_restore bên trong container:
+
+docker exec -it ten_container_postgres_cua_ban pg_restore -U ten_user_database -d ten_database_cua_ban --clean /tmp/file_backup.backup
+
+docker exec postgres-db pg_restore -U postgres -d CourtBookingManagement /tmp/CourtBookingManagement.backup

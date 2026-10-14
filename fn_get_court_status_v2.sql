@@ -12,7 +12,7 @@ RETURNS TABLE
     open_time TIME,
     close_time TIME,
     court_id UUID,
-    court_number VARCHAR,
+    court_number INT,
     court_name VARCHAR,
     court_status VARCHAR,
     booking_id UUID,
@@ -59,9 +59,6 @@ SELECT
     CASE
         WHEN bk.booking_type = 'FIXED'
             THEN '#35A8DB'
-
-        WHEN bk.booking_type = 'DAILY'
-            THEN '#31D37D'
 
         WHEN bk.booking_type = 'FLEXIBLE'
             THEN '#E2B93B'
